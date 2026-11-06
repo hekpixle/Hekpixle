@@ -152,11 +152,16 @@ void onWebviewCreated(HRESULT hr, ICoreWebView2Controller* ctrl) {
     std::wstring js = widen(std::string(kIpcShimJs));
     g.webview->AddScriptToExecuteOnDocumentCreated(js.c_str(), nullptr);
 
+    {
+        ComPtr<ICoreWebView2Settings> settings;
+        if (SUCCEEDED(g.webview->get_Settings(&settings)) && settings) {
 #ifndef NDEBUG
-    g.webview->put_IsDevToolsEnabled(TRUE);
+            settings->put_AreDevToolsEnabled(TRUE);
 #else
-    g.webview->put_IsDevToolsEnabled(FALSE);
+            settings->put_AreDevToolsEnabled(FALSE);
 #endif
+        }
+    }
 
     // Background colour matches the Hekpixle bone theme so there's no white flash.
     COREWEBVIEW2_COLOR bg{};
