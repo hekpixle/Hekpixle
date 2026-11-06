@@ -27,7 +27,7 @@ void launch(const std::string& url) {
     std::wstring exe = L"msedge.exe";
     std::wstring args = L"--remote-debugging-port=" + std::to_wstring(g_port) +
                         L" --new-window " + widen(url);
-    SHELLEXECUTEINFOW si{}; si.cb = sizeof(si); si.fMask = SEE_MASK_NOCLOSEPROCESS;
+    SHELLEXECUTEINFOW si{}; si.cbSize = sizeof(si); si.fMask = SEE_MASK_NOCLOSEPROCESS;
     si.lpFile = exe.c_str(); si.lpParameters = args.c_str(); si.nShow = SW_SHOWNORMAL;
     ShellExecuteExW(&si);
     g_edge = si.hProcess;
