@@ -23,7 +23,7 @@ std::map<std::string, Server> g_servers;
 std::mutex g_mu;
 
 bool startStdio(const std::string& name, const std::string& command) {
-    SECURITY_ATTRIBUTES sa{}; sa.nInheritHandle = TRUE;
+    SECURITY_ATTRIBUTES sa{}; sa.bInheritHandle = TRUE;
     HANDLE cInR, cInW, cOutR, cOutW;
     CreatePipe(&cInR, &cInW, &sa, 0);
     CreatePipe(&cOutR, &cOutW, &sa, 0);
