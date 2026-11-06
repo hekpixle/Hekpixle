@@ -1,6 +1,8 @@
 // Hekpixle — skills tools (skills_list, skill_view, skill_manage).
 // Mirrors lib/skills.js. Skills live in userDataDir/skills/<name>/SKILL.md
 // (user skills) and skills_seed/<name>/SKILL.md next to the exe (builtin).
+#include <windows.h>
+#include <shellapi.h>
 #include "tools.hpp"
 #include "util.hpp"
 #include "context.hpp"
