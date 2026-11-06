@@ -7,6 +7,8 @@
 #pragma once
 #include "json.hpp"
 #include <atomic>
+#include <thread>
+#include <mutex>
 #include <string>
 
 namespace hek {
