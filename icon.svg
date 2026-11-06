@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <!-- Subtle inner glow on the badge background -->
+    <radialGradient id="bgGrad" cx="50%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#2f3338"/>
+      <stop offset="100%" stop-color="#1b1d20"/>
+    </radialGradient>
+    <linearGradient id="pixelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5f0e2"/>
+      <stop offset="100%" stop-color="#cfc6b1"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b7ab92"/>
+      <stop offset="100%" stop-color="#8a8f94"/>
+    </linearGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feOffset dx="0" dy="2"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.35"/></feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Badge background: rounded square with gradient -->
+  <rect width="256" height="256" rx="58" fill="url(#bgGrad)"/>
+
+  <!-- Subtle pixel grid (very faint) -->
+  <g opacity="0.07" stroke="#ece7dc" stroke-width="1">
+    <path d="M64 64 H192 M64 96 H192 M64 128 H192 M64 160 H192 M64 192 H192"/>
+    <path d="M64 64 V192 M96 64 V192 M128 64 V192 M160 64 V192 M192 64 V192"/>
+  </g>
+
+  <!-- Pixel "H" - built from a 5x7 grid of 32x32 squares -->
+  <!-- Vertical left bar -->
+  <rect x="64" y="64" width="32" height="32" fill="url(#pixelGrad)" filter="url(#softShadow)"/>
+  <rect x="64" y="96" width="32" height="32" fill="url(#pixelGrad)"/>
+  <rect x="64" y="128" width="32" height="32" fill="url(#pixelGrad)"/>
+  <rect x="64" y="160" width="32" height="32" fill="url(#pixelGrad)"/>
+
+  <!-- Vertical right bar -->
+  <rect x="160" y="64" width="32" height="32" fill="url(#pixelGrad)" filter="url(#softShadow)"/>
+  <rect x="160" y="96" width="32" height="32" fill="url(#pixelGrad)"/>
+  <rect x="160" y="128" width="32" height="32" fill="url(#pixelGrad)"/>
+  <rect x="160" y="160" width="32" height="32" fill="url(#pixelGrad)"/>
+
+  <!-- Horizontal crossbar (only middle row) -->
+  <rect x="96" y="128" width="32" height="32" fill="url(#pixelGrad)"/>
+  <rect x="128" y="128" width="32" height="32" fill="url(#pixelGrad)"/>
+
+  <!-- Accent: one "lit" pixel in top-right (signal/node motif) -->
+  <circle cx="208" cy="48" r="9" fill="url(#accentGrad)" filter="url(#softShadow)"/>
+  <circle cx="208" cy="48" r="3.5" fill="#f5f0e2"/>
+
+  <!-- Connecting line from H to the dot (data flow motif) -->
+  <path d="M192 64 Q200 56 200 48" stroke="url(#accentGrad)" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.65"/>
+</svg>

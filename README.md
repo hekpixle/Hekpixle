@@ -1,16 +1,25 @@
-## Hi there 👋
+# Hekpixle — نسخه‌ی C++ (ساختار تخت)
 
-<!--
-**hekpixle/Hekpixle** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+بک‌اند C++ (Win32) + رابط WebView2؛ رابط (`index.html`, `app.js`, `styles.css`) همان نسخه‌ی Electron است.
 
-Here are some ideas to get you started:
+## چرا همه‌چیز بیرون است؟
+GitHub (آپلود از وب) پوشه نمی‌سازد؛ پس همه‌ی فایل‌ها کنار هم‌اند. **CMake بعد از بیلد خودش** فایل‌ها را در ساختار پوشه‌ای که برنامه لازم دارد کنار exe می‌چیند:
+```
+build/out/Hekpixle.exe  WebView2Loader.dll
+build/out/renderer/ (index.html, app.js, styles.css, fonts/, lib/katex/..., lib/highlight/...)
+build/out/assets/   build/out/skills_seed/<name>/SKILL.md
+```
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+## فایل‌ها
+- کد: `main.cpp window.cpp ipc.cpp ipc_shim.cpp agent.cpp context.cpp util.cpp` + ابزارها `web files computer browser mcp media procs ps skills cron plugins agent_tools telegram (.cpp)` + هدرها `*.hpp`
+- `nlohmann_json.hpp` (کتابخانه‌ی JSON، تک‌هدر)
+- `Hekpixle.rc.in`, `Hekpixle.manifest`, `icon.*` (آیکون/مانیفست)
+- رابط: `index.html app.js styles.css marked.min.js katex.min.* auto-render.min.js highlight.min.js github*.css` + فونت‌ها (`Vazirmatn-*`, `SpaceGrotesk-*`, `KaTeX_*`)
+- `skill-*.md` ← skillهای اولیه (به `skills_seed/<name>/SKILL.md` کپی می‌شوند)
+- `CMakeLists.txt`, `build.bat`, `github-workflow-build.yml`
+
+## ساخت exe
+**GitHub Actions (بدون نصب):** فایل `github-workflow-build.yml` را با Add file ← Create new file به نام `.github/workflows/build.yml` بسازید (محتوا را کپی کنید) ← تب Actions ← Build Hekpixle (C++) ← Run workflow ← `Hekpixle-win64` از Artifacts.
+**روی ویندوز:** Visual Studio Build Tools (Desktop development with C++) + CMake، سپس `build.bat`. بار اول اینترنت لازم است (WebView2 SDK از nuget).
+
+داده‌ها: `%APPDATA%\Hekpixle\` — پروفایل جدا: `Hekpixle.exe --profile=work`.

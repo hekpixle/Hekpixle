@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="fa">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 style-src 'self' 'unsafe-inline';
+                 img-src 'self' data:;
+                 font-src 'self';
+                 script-src 'self'" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hekpixle</title>
+
+  <!-- KaTeX styles (math rendering) -->
+  <link rel="stylesheet" href="lib/katex/katex.min.css" />
+  <!-- highlight.js theme (loaded early so first paint already has code styles) -->
+  <link rel="stylesheet" id="hljsTheme" href="lib/highlight/github-dark.min.css" />
+  <!-- App styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-theme="light">
+  <div class="app">
+    <!-- ========== Sidebar ========== -->
+    <aside class="sidebar">
+      <div class="side-top">
+        <div class="side-label">Agent</div>
+        <button class="nav-item" id="btnNewChat">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          <span>New chat</span>
+        </button>
+        <button class="nav-item" id="btnWorks">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg>
+          <span>Works</span>
+        </button>
+      </div>
+
+      <div class="side-label chats-label">Chats</div>
+      <div class="chat-list" id="chatList"></div>
+
+      <div class="side-bottom">
+        <div class="tg-indicator hidden" id="tgIndicator" title="Telegram bot status">
+          <span class="tg-dot"></span>
+          <span class="tg-text">
+            <span id="tgState">stopped</span>
+            <span id="tgErrorDetail"></span>
+          </span>
+          <button class="tg-toggle" id="tgToggle" title="Start/stop Telegram bot" type="button">▶</button>
+        </div>
+        <button class="nav-item small" id="btnSettings">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+          <span>Settings (API Key)</span>
+        </button>
+        <div class="brand">
+          <img src="../assets/icon.svg" alt="" class="brand-logo" />
+          <div>
+            <div class="brand-name">Hekpixle</div>
+            <div class="brand-ver">v0.13</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ========== Main ========== -->
+    <main class="main">
+      <!-- Chat view -->
+      <section class="view" id="viewChat">
+        <div class="messages" id="messages"></div>
+        <div class="composer-wrap empty" id="composerWrap">
+          <h1 class="hello" id="hello">امروز چه کاری انجام بدیم؟</h1>
+          <!-- Attachment chips appear here when files are attached -->
+          <div class="attachments" id="attachments"></div>
+          <div class="composer glow" id="composer">
+            <button class="attach-btn" id="btnAttach" title="Attach file" type="button">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3.3 3.3 0 0 1 4.66 4.66l-9.2 9.19a1.65 1.65 0 0 1-2.33-2.33l8.49-8.48"/></svg>
+            </button>
+            <textarea id="input" rows="1" placeholder="هر چیزی بپرس یا یه کار بسپار…" dir="auto"></textarea>
+            <button id="btnSend" class="send" title="Send" type="button">
+              <svg class="send-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+              <svg class="stop-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Works view -->
+      <section class="view hidden" id="viewWorks">
+        <div class="works-head">
+          <h2>Works</h2>
+          <button class="btn" id="btnAddWork">+ پروژه جدید</button>
+        </div>
+        <div class="works-grid" id="worksGrid"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Settings dialog — tabbed layout -->
+  <div class="modal hidden" id="modalSettings">
+    <div class="settings-card">
+      <!-- Header -->
+      <header class="settings-header">
+        <h3>Settings</h3>
+        <button class="settings-close" id="setClose" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </header>
+
+      <div class="settings-body">
+        <!-- Left sidebar: categories -->
+        <nav class="settings-nav">
+          <div class="settings-search">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="settingsSearch" placeholder="Search settings…" autocomplete="off" />
+          </div>
+          <div class="settings-section-label">General</div>
+          <button class="settings-tab active" data-tab="general" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+            <span>General</span>
+          </button>
+          <button class="settings-tab" data-tab="telegram" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            <span>Telegram</span>
+          </button>
+          <button class="settings-tab" data-tab="tools" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            <span>Tools</span>
+          </button>
+          <button class="settings-tab" data-tab="appearance" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.688h1.996c3.696 0 6.688-2.988 6.688-6.687C22 6.012 17.521 2 12 2z"/></svg>
+            <span>Appearance</span>
+          </button>
+
+          <div class="settings-section-label">About</div>
+          <button class="settings-tab" data-tab="about" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            <span>About</span>
+          </button>
+        </nav>
+
+        <!-- Right content area: panels -->
+        <div class="settings-content">
+          <!-- General tab -->
+          <div class="settings-panel active" data-panel="general">
+            <h4>General</h4>
+            <p class="settings-panel-sub">اتصال به مدل هوش مصنوعی (سازگار با OpenAI)</p>
+            <label>API Key
+              <input type="password" id="setKey" placeholder="sk-…" autocomplete="off" />
+              <small class="hint">کلید API سرویس LLM که ازش استفاده می‌کنی (OpenAI، OpenRouter، و...).</small>
+            </label>
+            <label>Base URL
+              <input type="text" id="setBase" placeholder="https://api.openai.com/v1" autocomplete="off" />
+              <small class="hint">آدرس API endpoint. برای OpenAI: <code>https://api.openai.com/v1</code></small>
+            </label>
+            <label>Model
+              <input type="text" id="setModel" placeholder="gpt-4o-mini" autocomplete="off" />
+              <small class="hint">نام مدل. مثلاً <code>gpt-4o-mini</code>، <code>claude-3-5-sonnet</code> و...</small>
+            </label>
+            <label>LLM API Proxy URL (for blocked regions — e.g. Iran)
+              <input type="text" id="setLlmProxy" placeholder="http://127.0.0.1:7890" autocomplete="off" />
+              <small class="hint">اگه endpoint مدل هوش مصنوعی تو منطقه‌ی شما مسدوده، آدرس HTTP proxy محلی رو بذارید. تو ایران لازمه (مثل <code>http://127.0.0.1:7890</code> برای Clash).</small>
+            </label>
+
+            <div class="settings-divider">Personality (custom instructions)</div>
+            <label>Personality / SOUL
+              <textarea id="setPersonality" rows="3" placeholder="مثال: همیشه جواب‌های کوتاه بده. از شوخی استفاده کن. من برنامه‌نویس پایتون هستم." dir="auto" style="font-size:13px; resize:vertical;"></textarea>
+              <small class="hint">دستورالعمل‌های شخصی شما — به system prompt اضافه می‌شه. مثل SOUL.md در Hermes.</small>
+            </label>
+
+            <div class="settings-divider">Fallback provider (auto-switch when primary fails)</div>
+            <label>Fallback Base URL
+              <input type="text" id="setFallbackBase" placeholder="https://openrouter.ai/api/v1" autocomplete="off" />
+              <small class="hint">اگه LLM اصلی ارور بده (مثلاً ۴۰۳ یا ۴۲۹)، خودکار به این سرویس سوییچ می‌شه.</small>
+            </label>
+            <label>Fallback API Key
+              <input type="password" id="setFallbackKey" placeholder="sk-or-v1-..." autocomplete="off" />
+            </label>
+            <label>Fallback Model
+              <input type="text" id="setFallbackModel" placeholder="openai/gpt-4o-mini" autocomplete="off" />
+            </label>
+          </div>
+
+          <!-- Telegram tab -->
+          <div class="settings-panel" data-panel="telegram">
+            <h4>Telegram bot</h4>
+            <p class="settings-panel-sub">ربات تلگرام — تو چت خصوصی، گروه، و سوپرگروه پاسخ می‌ده</p>
+            <label>Bot token (from <code>@BotFather</code>)
+              <div class="input-row">
+                <input type="password" id="setTgToken" placeholder="123456789:ABC…" autocomplete="off" />
+                <button class="btn sm ghost" id="btnTestTg" type="button">Test</button>
+              </div>
+              <small class="hint" id="tgTestResult"></small>
+            </label>
+            <label>Proxy URL (for blocked regions — e.g. Iran)
+              <input type="text" id="setTgProxy" placeholder="http://127.0.0.1:7890" autocomplete="off" />
+              <small class="hint">اگه api.telegram.org تو منطقه‌ی شما مسدوده، آدرس HTTP proxy محلی رو بذارید. <strong>MTProto کار نمی‌کنه</strong> — فقط HTTP/HTTPS proxy. تو ایران لازمه.</small>
+            </label>
+            <label>Allowed user IDs (comma-separated)
+              <input type="text" id="setTgUserIds" placeholder="leave empty to allow anyone" autocomplete="off" />
+              <small class="hint">مثل <code>123456789, 987654321</code>. تو تلگرام به ربات <code>/myid</code> بفرست تا ID خودت رو بگیری.</small>
+            </label>
+            <label class="check">
+              <input type="checkbox" id="setTgAutoStart" />
+              <span>Auto-start bot when Hekpixle opens</span>
+            </label>
+            <label class="check">
+              <input type="checkbox" id="setTgAutoAllowReads" checked />
+              <span>Auto-allow read tools from Telegram (list_dir, read_file, launch_app, run_command, send_keys, focus_app)</span>
+            </label>
+            <label class="check">
+              <input type="checkbox" id="setTgAutoAllowWrites" />
+              <span>Auto-allow write tools from Telegram (write_file, make_dir, move_or_rename, delete_path) — DANGEROUS</span>
+            </label>
+            <label class="check">
+              <input type="checkbox" id="setTgOnlyMentioned" checked />
+              <span>In groups, only respond when mentioned or replied to</span>
+            </label>
+          </div>
+
+          <!-- Tools tab -->
+          <div class="settings-panel" data-panel="tools">
+            <h4>Tools &amp; Automation</h4>
+            <p class="settings-panel-sub">ابزارها، مرورگر، جستجوی وب، بینایی، MCP، skills و کارهای زمان‌بندی‌شده</p>
+
+            <div class="settings-divider">Toolsets (روشن/خاموش)</div>
+            <div id="toolsetList" class="toolset-grid"></div>
+
+            <div class="settings-divider">Safety &amp; limits</div>
+            <label>Approval mode
+              <select id="setApproval"><option value="manual">manual — قبل از کارهای حساس بپرس</option><option value="off">off — هیچ‌وقت نپرس (دستورهای خطرناک همچنان می‌پرسه)</option></select>
+            </label>
+            <label>حداکثر مراحل ابزار در هر درخواست
+              <input type="number" id="setMaxSteps" min="5" max="200" placeholder="30" />
+            </label>
+            <label>Workspace folder (پیش‌فرض search_files و فایل‌های AGENTS.md)
+              <input type="text" id="setWorkspace" placeholder="C:\Users\me\projects" autocomplete="off" />
+            </label>
+            <label>فشرده‌سازی خودکار تاریخچه از (کاراکتر)
+              <input type="number" id="setCompressAt" min="20000" step="10000" placeholder="90000" />
+            </label>
+            <label class="check"><input type="checkbox" id="setBrowserVisible" /> پنجره‌ی مرورگر ایجنت دیده بشه</label>
+            <div class="hint" id="alwaysList"></div>
+            <button class="btn sm ghost" id="btnResetAlways" type="button">پاک‌کردن «همیشه اجازه بده»ها</button>
+
+            <div class="settings-divider">Web search / extract</div>
+            <label>Provider
+              <select id="setWebProvider"><option value="duckduckgo">DuckDuckGo (بدون کلید)</option><option value="tavily">Tavily</option><option value="brave">Brave Search</option><option value="searxng">SearXNG</option></select>
+            </label>
+            <label>API key (Tavily / Brave)
+              <input type="password" id="setWebKey" autocomplete="off" />
+            </label>
+            <label>SearXNG URL
+              <input type="text" id="setWebSearx" placeholder="https://searx.example.org" autocomplete="off" />
+            </label>
+            <label>Proxy برای وب (اگه دسترسی مسدوده)
+              <input type="text" id="setWebProxy" placeholder="http://127.0.0.1:7890" autocomplete="off" />
+            </label>
+
+            <div class="settings-divider">Vision &amp; media</div>
+            <label>تصاویر/اسکرین‌شات‌ها چطور به مدل برسن؟
+              <select id="setVisionMode"><option value="direct">مستقیم به مدل اصلی (مدل باید vision داشته باشه)</option><option value="aux">با مدل بینایی جدا توضیح داده بشه</option></select>
+            </label>
+            <label>Vision model (اختیاری)
+              <input type="text" id="setVisionModel" placeholder="gpt-4o-mini" autocomplete="off" />
+            </label>
+            <label>Vision Base URL / Key (خالی = همون اصلی)
+              <input type="text" id="setVisionBase" placeholder="https://..." autocomplete="off" />
+              <input type="password" id="setVisionKey" placeholder="API key" autocomplete="off" style="margin-top:6px" />
+            </label>
+            <label>Media Base URL / Key برای تصویر، TTS و رونویسی (خالی = همون اصلی)
+              <input type="text" id="setMediaBase" placeholder="https://api.openai.com/v1" autocomplete="off" />
+              <input type="password" id="setMediaKey" placeholder="API key" autocomplete="off" style="margin-top:6px" />
+            </label>
+            <label>Models: image / tts / voice / stt
+              <input type="text" id="setImageModel" placeholder="gpt-image-1" autocomplete="off" />
+              <input type="text" id="setTtsModel" placeholder="tts-1" autocomplete="off" style="margin-top:6px" />
+              <input type="text" id="setTtsVoice" placeholder="alloy" autocomplete="off" style="margin-top:6px" />
+              <input type="text" id="setSttModel" placeholder="whisper-1" autocomplete="off" style="margin-top:6px" />
+            </label>
+
+            <div class="settings-divider">MCP servers</div>
+            <label>JSON (مثل Claude Desktop)
+              <textarea id="setMcp" rows="6" dir="ltr" spellcheck="false" placeholder='{ "files": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:/Users/me"] } }' style="font-family:Consolas,monospace; font-size:12px; resize:vertical;"></textarea>
+              <small class="hint">بعد از «ذخیره» سرورها وصل می‌شن. سرور با <code>"autoApprove": true</code> بدون پرسیدن اجرا می‌شه.</small>
+            </label>
+            <div class="hint" id="mcpStatus"></div>
+
+            <div class="settings-divider">Skills &amp; plugins</div>
+            <label>پوشه‌ی اضافه برای skills (اختیاری)
+              <input type="text" id="setExtraSkills" placeholder="C:\Users\me\.agents\skills" autocomplete="off" />
+            </label>
+            <div class="hint" id="skillsInfo"></div>
+            <div class="row-btns">
+              <button class="btn sm ghost" id="btnOpenSkills" type="button">باز کردن پوشه‌ی skills</button>
+              <button class="btn sm ghost" id="btnOpenPlugins" type="button">باز کردن پوشه‌ی plugins</button>
+            </div>
+
+            <div class="settings-divider">Scheduled jobs (cron)</div>
+            <label class="check"><input type="checkbox" id="setCronReads" /> کارهای زمان‌بندی‌شده بتونن بخونن/اجرا کنن (بدون پرسیدن)</label>
+            <label class="check"><input type="checkbox" id="setCronWrites" /> کارهای زمان‌بندی‌شده بتونن فایل بنویسن/حذف کنن</label>
+            <div id="cronList" class="cron-list"></div>
+            <small class="hint">برای ساخت کار جدید از ایجنت بخواه: «هر روز ساعت ۹ صبح اخبار فناوری رو خلاصه کن و برام بفرست».</small>
+          </div>
+
+          <!-- Appearance tab -->
+          <div class="settings-panel" data-panel="appearance">
+            <h4>Appearance</h4>
+            <p class="settings-panel-sub">ظاهر برنامه — تم، انیمیشن و...</p>
+            <label>Theme</label>
+            <div class="theme-options">
+              <button class="theme-card" data-theme="system" type="button">
+                <div class="theme-card-swatch theme-card-system">
+                  <div class="theme-card-half theme-card-light"></div>
+                  <div class="theme-card-half theme-card-dark"></div>
+                </div>
+                <div class="theme-card-label">System</div>
+                <div class="theme-card-sub">دنبال تنظیمات OS</div>
+              </button>
+              <button class="theme-card" data-theme="light" type="button">
+                <div class="theme-card-swatch theme-card-light"></div>
+                <div class="theme-card-label">Light</div>
+                <div class="theme-card-sub">استخوانی / طوسی</div>
+              </button>
+              <button class="theme-card" data-theme="dark" type="button">
+                <div class="theme-card-swatch theme-card-dark"></div>
+                <div class="theme-card-label">Dark</div>
+                <div class="theme-card-sub">سیاه / استخوانی</div>
+              </button>
+            </div>
+            <input type="hidden" id="setTheme" value="light" />
+
+            <div class="settings-divider" style="margin-top: 16px;">Animations</div>
+            <label class="check">
+              <input type="checkbox" id="setReduceMotion" />
+              <span>Reduce motion (no animations)</span>
+              <small class="hint">اگه حساس به انیمیشن‌ها هستی یا دستگاهت کندِ، این رو روشن کن.</small>
+            </label>
+          </div>
+
+          <!-- About tab -->
+          <div class="settings-panel" data-panel="about">
+            <h4>About Hekpixle</h4>
+            <p class="settings-panel-sub">اطلاعات نسخه و وابستگی‌ها</p>
+            <div class="about-row">
+              <span>Version</span>
+              <strong>v0.13.0</strong>
+            </div>
+            <div class="about-row">
+              <span>Platform</span>
+              <strong id="aboutPlatform">—</strong>
+            </div>
+            <div class="about-row">
+              <span>Electron</span>
+              <strong>33+</strong>
+            </div>
+            <div class="about-row">
+              <span>Node.js</span>
+              <strong id="aboutNode">—</strong>
+            </div>
+            <div class="about-row">
+              <span>Bot tools</span>
+              <strong>45+ (files, terminal, browser, desktop, web, MCP, skills, cron…)</strong>
+            </div>
+            <div class="about-row">
+              <span>Telegram bot</span>
+              <strong id="aboutTg">disabled</strong>
+            </div>
+
+            <div class="settings-divider">Built with</div>
+            <ul class="about-list">
+              <li><strong>Electron</strong> — desktop framework</li>
+              <li><strong>marked.js</strong> — Markdown parser</li>
+              <li><strong>KaTeX</strong> — math/physics formulas</li>
+              <li><strong>highlight.js</strong> — code syntax highlighting</li>
+              <li><strong>undici</strong> — proxy support for Telegram</li>
+              <li><strong>Vazirmatn + Space Grotesk</strong> — fonts</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="settings-footer">
+        <button class="btn ghost" id="setCancel" type="button">بستن</button>
+        <button class="btn" id="setSave" type="button">ذخیره</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Work dialog -->
+  <div class="modal hidden" id="modalWork">
+    <div class="modal-card">
+      <h3>پروژه جدید</h3>
+      <label>نام
+        <input type="text" id="workName" dir="auto" />
+      </label>
+      <label>توضیح
+        <input type="text" id="workDesc" dir="auto" />
+      </label>
+      <label>مسیر پوشه (اختیاری)
+        <input type="text" id="workPath" placeholder="C:\Users\you\Projects\demo" />
+      </label>
+      <div class="modal-actions">
+        <button class="btn ghost" id="workCancel">لغو</button>
+        <button class="btn" id="workSave">ساخت</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vendor libraries (KaTeX, marked, highlight.js) -->
+  <script src="lib/katex/katex.min.js"></script>
+  <script src="lib/katex/contrib/auto-render.min.js"></script>
+  <script src="lib/marked.min.js"></script>
+  <script src="lib/highlight/highlight.min.js"></script>
+
+  <!-- App -->
+  <script src="app.js"></script>
+</body>
+</html>

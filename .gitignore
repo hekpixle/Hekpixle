@@ -1,0 +1,34 @@
+# Build output
+build/
+out/
+x64/
+Debug/
+Release/
+
+
+# IDE / OS
+.vs/
+.vscode/
+*.user
+*.suo
+*.aps
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.obj
+*.tlog
+*.idb
+
+# Generated
+*.tmp
+*.bak
+checkpoints/
+screenshot.png
+generated.png
+tts.mp3
+
+# Keep these (do NOT ignore):
+!renderer/
+!assets/
+!skills_seed/
