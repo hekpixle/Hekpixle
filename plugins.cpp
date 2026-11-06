@@ -6,6 +6,7 @@
 // and treat each plugin folder as a manifest describing tools we proxy via
 // a JSON-RPC contract. This keeps the tool registry honest while leaving room
 // for a real plugin runtime later.
+#include <windows.h>
 #include "tools.hpp"
 #include "util.hpp"
 #include "context.hpp"
