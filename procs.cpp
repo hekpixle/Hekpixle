@@ -36,7 +36,7 @@ std::mutex g_mu;
 int g_nextId = 1;
 
 std::string runForeground(const std::string& cmd, int timeoutS) {
-    SECURITY_ATTRIBUTES sa{}; sa.nInheritHandle = TRUE;
+    SECURITY_ATTRIBUTES sa{}; sa.bInheritHandle = TRUE;
     HANDLE rOut, wOut; CreatePipe(&rOut, &wOut, &sa, 0);
     SetHandleInformation(rOut, HANDLE_FLAG_INHERIT, 0);
 
@@ -84,7 +84,7 @@ void registerTools(Context& ctx) {
             if (a.value("background", false)) {
                 std::lock_guard<std::mutex> lk(g_mu);
                 int id = g_nextId++;
-                SECURITY_ATTRIBUTES sa{}; sa.nInheritHandle = TRUE;
+                SECURITY_ATTRIBUTES sa{}; sa.bInheritHandle = TRUE;
                 HANDLE rOut, wOut; CreatePipe(&rOut, &wOut, &sa, 0);
                 SetHandleInformation(rOut, HANDLE_FLAG_INHERIT, 0);
                 STARTUPINFOA si{}; si.cb = sizeof(si);
