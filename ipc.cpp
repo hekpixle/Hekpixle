@@ -40,6 +40,7 @@ TelegramBot* telegram() {
     if (!g_telegram) g_telegram = new TelegramBot();
     return g_telegram;
 }
+} // namespace  (end of file-local helpers)
 
 // Forward decls for the handlers.
 json handleSettingsGet(Context& ctx);
@@ -77,7 +78,7 @@ json safeRun(int id, Fn fn) {
         return {{"id", id}, {"ok", false}, {"error", "unknown error"}};
     }
 }
-} // namespace
+// (handler declarations above must have external linkage: they are defined below, outside the anonymous namespace)
 
 json ipcDispatch(Context& ctx, const json& msg) {
     int id = msg.value("id", 0);
